@@ -12,7 +12,6 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
-#include <stdio.h>
 #define SIZE 12 ///<Rozmiar drzewa
 
 /**
@@ -143,10 +142,8 @@ static void listDelete(List *list) {
                 free(current->reverse);
                 current->reverse = NULL;
             }
-            if (current) {
-                free(current);
-                current = NULL;
-            }
+            free(current);
+            current = NULL;
             current = next;
         }
         list = NULL;
@@ -317,10 +314,8 @@ void phrevDelete(PhoneReverse *phrev) {
         }
         // Usuwanie przekierowania (listy)
         listDelete(phrev->forward);
-        if (phrev != NULL) {
-            free(phrev);
-            phrev = NULL;
-        }
+        free(phrev);
+        phrev = NULL;
     }
 }
 
@@ -340,11 +335,8 @@ static void phfwdDeleteRek(PhoneForward *pf) {
             free(pf->forward);
             pf->forward = NULL;
         }
-        if (pf != NULL) {
-            free(pf);
-            pf = NULL;
-        }
-
+        free(pf);
+        pf = NULL;
     }
 }
 
@@ -379,8 +371,7 @@ static int isNumber(const char *num) {
     while (num[length] != '\0') {
         if (isdigit(num[length]) || (get_digit(num[length]) == 10) || (get_digit(num[length]) == 11)) {
             length++;
-        }
-        else {          // Natrafilismy na znak rozny od cyfry
+        } else {          // Natrafilismy na znak rozny od cyfry
             return 0;
         }
     }
@@ -397,9 +388,12 @@ static int isNumber(const char *num) {
 static PhoneForward* newNode()
 {
     PhoneForward* node = (struct PhoneForward*)malloc(sizeof(PhoneForward));
+    if (node == NULL) {
+        return node;
+    }
 
     for (int i = 0; i < SIZE; i++) {
-        if (node != NULL) node->children[i] = NULL;
+        node->children[i] = NULL;
     }
     return node;
 }
@@ -414,9 +408,12 @@ static PhoneForward* newNode()
 static PhoneReverse* newNodeReverse()
 {
     PhoneReverse* node = (struct PhoneReverse*)malloc(sizeof(PhoneReverse));
+    if (node == NULL) {
+        return node;
+    }
 
     for (int i = 0; i < SIZE; i++) {
-        if (node != NULL) node->children[i] = NULL;
+        node->children[i] = NULL;
     }
     return node;
 }
@@ -452,9 +449,7 @@ static List* insertToList(List *list, const char* num) {
 
     if (list == NULL) {
         ptr->next = list;
-        if (ptr != NULL) {
-            return ptr;
-        }
+        return ptr;
     } else if (compare(num, list->reverse) < 0)
     {
         ptr->next = list;
@@ -474,7 +469,6 @@ static List* insertToList(List *list, const char* num) {
         cur->next = ptr;
         return list;
     }
-    return NULL;
 }
 
 
@@ -520,7 +514,8 @@ static void phrevAdd(PhoneReverse *pf, char const *num1, char const *num2) {
 static void phrevRemoveConcrete(PhoneReverse *pf, const char* num, const char* num2) {
     if (pf != NULL) {
         PhoneReverse *curr = pf;
-        for (int i = 0; i < (int)strlen(num); i++) {
+        size_t numberLength = strlen(num);
+        for (size_t i = 0; i < numberLength; i++) {
             if (!curr->children[get_digit(*num)]) {
                 return;
             }
@@ -546,14 +541,14 @@ static void phrevRemoveConcrete(PhoneReverse *pf, const char* num, const char* n
 static void phrevRemove(PhoneReverse *pf, const char* num, const char* num2) {
     if (pf != NULL) {
         PhoneReverse *curr = pf;
-        for (int i = 0; i < (int)strlen(num); i++) {
+        size_t numberLength = strlen(num);
+        for (size_t i = 0; i < numberLength; i++) {
             if (!curr->children[get_digit(*num)]) {
                 return;
             }
             curr = curr->children[get_digit(*num)];
             num++;
         }
-        if (*num != '\0' && curr->children[get_digit(*num)]) curr = curr->children[get_digit(*num)];
         deleteElemListReverse(&curr->forward, num2);
     }
 
@@ -606,11 +601,7 @@ void phfwdRemove(PhoneForward *pf, char const *num)
             tempNum++;
         }
 
-        if (*tempNum != '\0' && curr->children[get_digit(*tempNum)]) curr = curr->children[get_digit(*tempNum)];
-        else if (*tempNum != '\0' && !curr->children[get_digit(*tempNum)]) return;
-
         List* listOfRemoves = NULL;
-
 
         for (int i = 0; i < SIZE; i++) {
             if (curr->children[i] != NULL && curr->children[i]->forward != NULL) {
@@ -712,7 +703,7 @@ PhoneNumbers *phfwdGet(PhoneForward const *pf, char const *num) {
     if (secondPart)  free(secondPart);
     if (lastForward) free(lastForward);
     if (maxForward)  free(maxForward);
-    if (numCopy) free(numCopy);
+    free(numCopy);
 
     return pnum;
 }
@@ -730,10 +721,8 @@ void phnumDelete(PhoneNumbers *pnum)
         // Usuwanie przekierowania (listy)
         listDelete(pnum->allNumbers);
         // Usuwam podstrukture i strukture.
-        if (pnum) {
-            free(pnum);
-            pnum = NULL;
-        }
+        free(pnum);
+        pnum = NULL;
     }
 }
 
@@ -857,9 +846,9 @@ bool phfwdAdd(PhoneForward *pf, char const *num1, char const *num2)
  */
 PhoneNumbers* phfwdReverse(PhoneForward const *pf, char const *num) {
     PhoneNumbers *pnum = (PhoneNumbers*)malloc(sizeof(PhoneNumbers));
+
     if (pnum == NULL) return NULL;
     pnum->allNumbers = NULL;
-    if (pnum == NULL) return NULL;
 
     if (pf == NULL) {
         free(pnum);
@@ -945,18 +934,18 @@ PhoneNumbers * phfwdGetReverse(PhoneForward const *pf, char const *num) {
     pnum1 = phfwdReverse(pf, num);
     List* temp  = pnum1->allNumbers;
 
-//    while (temp != NULL) {
-//        PhoneNumbers *pnum2;
-//        pnum2 = phfwdGet(pf, temp->reverse);
-//        List* curr = temp->next;
-//        if (strcmp(pnum2->allNumbers->reverse, num) != 0) {
-//            if (pnum1->allNumbers && temp) {
-//                deleteReverse(&(pnum1->allNumbers), temp->reverse);
-//            }
-//        }
-//        temp = curr;
-//        phnumDelete(pnum2);
-//    }
+    while (temp != NULL) {
+        PhoneNumbers *pnum2;
+        pnum2 = phfwdGet(pf, temp->reverse);
+        List* curr = temp->next;
+        if (strcmp(pnum2->allNumbers->reverse, num) != 0) {
+            if (pnum1->allNumbers) {
+                deleteReverse(&(pnum1->allNumbers), temp->reverse);
+            }
+        }
+        temp = curr;
+        phnumDelete(pnum2);
+    }
     pnum->allNumbers = pnum1->allNumbers;
     free(pnum1);
 
