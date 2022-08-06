@@ -563,11 +563,11 @@ static void phrevRemove(PhoneReverse *pf, const char* num, const char* num2) {
  * Usuwam rekursywnie przekierowanie z drzewa zwyklego,
  * wywoluje w tej funkcji usuwanie przekierowania z drzewa odwroconego.
  */
-static void pfRemove(PhoneForward *pf, PhoneForward *const_pf, char const* num, List** listOfRemoves) {
+static void phfwdRemoveRek(PhoneForward *pf, PhoneForward *const_pf, char const* num, List** listOfRemoves) {
     if (pf != NULL) {
         for (int i = 0; i < SIZE; i++) {
             if (pf->children[i]) {
-                pfRemove(pf->children[i], const_pf, num, listOfRemoves);
+                phfwdRemoveRek(pf->children[i], const_pf, num, listOfRemoves);
             }
             if (pf->forward != NULL) {
                 phrevRemove(const_pf->pfRev, pf->forward, num);
@@ -612,7 +612,7 @@ void phfwdRemove(PhoneForward *pf, char const *num)
             }
         }
 
-        pfRemove(curr, pf, num, &listOfRemoves);
+        phfwdRemoveRek(curr, pf, num, &listOfRemoves);
         listDelete(listOfRemoves);
     }
 }
