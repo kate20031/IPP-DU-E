@@ -506,10 +506,11 @@ static void phrevAdd(PhoneReverse *pf, char const *num1, char const *num2) {
 
 /**
  * @brief Usuwa przekierowania (za prefiksem) z drzewa odwroconego
- * Usuwa z drzewa wszystkie przekierowania, zaczynajÄ…ce siÄ™ podanym prefiksem
+ * Usuwa z drzewa wszystkie przekierowania, które "=="
+ * leksykograficznie num2.
  * @param pf - wskaznik na drzewo odwrocone.
- * @param num- wskaznik na numer przekierowania "dokad"
- * @param num2- wskaznik na numer przekierowania "skad" (przefiks)
+ * @param num- wskaznik na numer przekierowania "dokad".
+ * @param num2- wskaznik na numer przekierowania "skad".
  */
 static void phrevRemoveConcrete(PhoneReverse *pf, const char* num, const char* num2) {
     if (pf != NULL) {
