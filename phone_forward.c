@@ -12,6 +12,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
+
 #define SIZE 12 ///<Rozmiar drzewa
 
 /**
@@ -36,21 +37,19 @@ struct PhoneForward {
 typedef struct PhoneForward PhoneForward;
 
 
-
 /**
  * @brief Lista przekierowan.
  * Przechowuje przekierowania (jest uzywana dla pfRev i w funkcji phfwdGet).
  */
-struct List{
-    char* reverse;  ///<przekierowanie(numer).
-    struct List* next;  ///<wskaznik na nastepny element.
+struct List {
+    char *reverse;  ///<przekierowanie(numer).
+    struct List *next;  ///<wskaznik na nastepny element.
 };
 /**
  * @brief to jest typ Lista
  *
  */
 typedef struct List List;
-
 
 
 /**
@@ -71,7 +70,6 @@ struct PhoneReverse {
 typedef struct PhoneReverse PhoneReverse;
 
 
-
 /**
  * @brief Przechowuje strukture numerow przekierowanych.
  * Przechowywam wszystkie wynikowe przekierowania w liscie
@@ -86,14 +84,13 @@ struct PhoneNumbers {
 typedef struct PhoneNumbers PhoneNumbers;
 
 
-
 /** @brief Tworzy nowa strukture (Reverse).
 * Tworzy nowa strukture  niezawierajaca zadnych przekierowan.
 * @return Wskaznik na utworzona strukture lub NULL, gdy nie udalo sie
 *         alokowac pamieci.
 */
 PhoneReverse *phrevNew(void) {
-    PhoneReverse* phrev = (PhoneReverse*)malloc(sizeof(PhoneReverse));
+    PhoneReverse *phrev = (PhoneReverse *) malloc(sizeof(PhoneReverse));
     if (phrev != NULL) {
         for (int i = 0; i < SIZE; i++) {
             phrev->children[i] = NULL;
@@ -105,14 +102,14 @@ PhoneReverse *phrevNew(void) {
 }
 
 
-
 /** @brief Tworzy nowa strukture.
 * Tworzy nowa strukture niezawierajaca zadnych przekierowan.
 * @return Wskaznik na utworzona strukture lub NULL, gdy nie udalo sie
 *         alokowac pamieci.
 */
 PhoneForward *phfwdNew(void) {
-    PhoneForward* pf = (PhoneForward*)malloc(sizeof(PhoneForward));
+    PhoneForward *pf = (PhoneForward *) malloc(sizeof(PhoneForward));
+
     if (pf != NULL) {
         for (int i = 0; i < SIZE; i++) {
             pf->children[i] = NULL;
@@ -120,10 +117,14 @@ PhoneForward *phfwdNew(void) {
         pf->parent = NULL;
         pf->forward = NULL;
         pf->pfRev = phrevNew();
+        if (pf->pfRev == NULL) {
+            free(pf);
+            pf = NULL;
+            return NULL;
+        }
     }
     return pf;
 }
-
 
 
 /**
@@ -135,10 +136,9 @@ static void listDelete(List *list) {
     if (list != NULL) {
         List *current = list;
         List *next;
-        while (current != NULL)
-        {
+        while (current != NULL) {
             next = current->next;
-            if (current->reverse ) {
+            if (current->reverse != NULL) {
                 free(current->reverse);
                 current->reverse = NULL;
             }
@@ -151,20 +151,18 @@ static void listDelete(List *list) {
 }
 
 
-
 /**
  * @brief Zwraca liczbowa postac znaku.
  *
  * @param c - znak.
  * @return int liczbowa postac znaku.
  */
-static int get_digit(char c){
+static int get_digit(char c) {
     if (c == '*') return 10;
     if (c == '#') return 11;
     if ((c == ';') || (c == ':')) return -1;
     return c - '0';
 }
-
 
 
 /**
@@ -174,38 +172,35 @@ static int get_digit(char c){
  * @param p2 - wskaznik na drugi napis
  * @return int - liczba dodatnia/ujemna/zero w zaleznosci od wyniku porownania
  */
-static int compare (const char *p1, const char *p2)
-{
+static int compare(const char *p1, const char *p2) {
     const unsigned char *s1 = (const unsigned char *) p1;
     const unsigned char *s2 = (const unsigned char *) p2;
     unsigned char c1, c2;
-    do
-    {
+    do {
         c1 = (unsigned char) *s1++;
         c2 = (unsigned char) *s2++;
         if (c1 == '\0') {
             return get_digit(c1) - get_digit(c2);
         }
-    }
-    while (get_digit(c1) == get_digit(c2));
+    } while (get_digit(c1) == get_digit(c2));
     return get_digit(c1) - get_digit(c2);
 }
 
 
 /**
- * @brief Sprawdza czy podany numer zaczyna siÄ™ prefiksem
+ * @brief Sprawdza czy podany numer zaczyna sie prefiksem
  *
- * @param number â€“ wskaÅºnik na numer(przekierowanie).
- * @param prefix â€“ wskaÅºnik na prefiks.
- * @return true  â€“ jeÅ›li numer zaczyna siÄ™ przefiksem.
- * @return false â€“  jeÅ›li numer nie zaczyna siÄ™ przefiksem.
+ * @param number - wskaznik na numer(przekierowanie).
+ * @param prefix - wskaznik na prefiks.
+ * @return true  - jesli numer zaczyna sie przefiksem.
+ * @return false -  jesli numer nie zaczyna sie przefiksem.
  */
-static bool hasaPrefix(char* number, const char* prefix) {
+static bool hasaPrefix(char *number, const char *prefix) {
     if (strlen(prefix) > strlen(number)) {
         return false;
     }
-    char* prefixTemp = (char*)prefix;
-    char* numberTemp = number;
+    char *prefixTemp = (char *) prefix;
+    char *numberTemp = number;
     int digit1 = get_digit(*prefixTemp);
     int digit2 = get_digit(*numberTemp);
 
@@ -225,17 +220,15 @@ static bool hasaPrefix(char* number, const char* prefix) {
 
 
 /**
- * @brief Usuwanie z listy przekierowaÅ„, ktÃ³re sÄ… takie same jak "num" (leksykograficznie)
+ * @brief Usuwanie z listy przekierowan, ktore sa takie same jak "num" (leksykograficznie)
  *
- * @param list â€“ wskaÅ¼nik na listÄ™.
- * @param num â€“ wskaÅºnik na szukane przekierowanie.
+ * @param list - wskaÅ¼nik na liste.
+ * @param num - wskaznik na szukane przekierowanie.
  */
-static void deleteReverse(List **list, const char* num)
-{
-    // Usuwam element na poczÄ…tku.
-    if (*list && (compare((*list)->reverse, num) == 0))
-    {
-        List* tmp = *list;
+static void deleteReverse(List **list, const char *num) {
+    // Usuwam element na poczatku.
+    if (*list && (compare((*list)->reverse, num) == 0)) {
+        List *tmp = *list;
         *list = (*list)->next;
         if (tmp->reverse != NULL) {
             free(tmp->reverse);
@@ -246,13 +239,12 @@ static void deleteReverse(List **list, const char* num)
         return;
     }
 
-    // Usuwam element w Å›rodku \ na koÅ„cu listy.
-    for (List * current = *list; current != NULL; current = current->next)
-    {
-        if (current->next != NULL && current->next->reverse && (compare(current->next->reverse, num) == 0))
-        {
+    // Usuwam element w srodku lub na koncu listy.
+    for (List *current = *list; current != NULL; current = current->next) {
+        if (current->next != NULL && current->next->reverse != NULL
+        && (compare(current->next->reverse, num) == 0)) {
 
-            List * tmp = current->next;
+            List *tmp = current->next;
             current->next = tmp->next;
             if (tmp->reverse != NULL) {
                 free(tmp->reverse);
@@ -267,17 +259,15 @@ static void deleteReverse(List **list, const char* num)
 
 
 /**
- * @brief Usuwanie z listy przekierowaÅ„ zaczynajÄ…cych siÄ™ przefiksem "num"
+ * @brief Usuwanie z listy przekierowan zaczynajacych sie przefiksem "num"
  *
- * @param list â€“ wskaÅ¼nik na listÄ™.
- * @param num â€“ wskaÅºnik na przefiks.
+ * @param list - wskaÅ¼nik na liste.
+ * @param num - wskaznik na przefiks.
  */
-static void deleteElemListReverse(List **list, const char* num)
-{
-    // Usuwam elementy na poczÄ…tku.
-    while (*list && hasaPrefix((*list)->reverse, num))
-    {
-        List * tmp = *list;
+static void deleteElemListReverse(List **list, const char *num) {
+    // Usuwam elementy na poczatku.
+    while (*list && hasaPrefix((*list)->reverse, num)) {
+        List *tmp = *list;
         *list = (*list)->next;
         free(tmp->reverse);
         tmp->reverse = NULL;
@@ -285,12 +275,10 @@ static void deleteElemListReverse(List **list, const char* num)
         tmp = NULL;
     }
 
-    // Usuwam element w Å›rodku \ na koÅ„cu listy.
-    for (List * current = *list; current != NULL; current = current->next)
-    {
-        while (current->next != NULL && hasaPrefix(current->next->reverse, num))
-        {
-            List * tmp = current->next;
+    // Usuwam element w srodku \ na koncu listy.
+    for (List *current = *list; current != NULL; current = current->next) {
+        while (current->next != NULL && hasaPrefix(current->next->reverse, num)) {
+            List *tmp = current->next;
             current->next = tmp->next;
             free(tmp->reverse);
             tmp->reverse = NULL;
@@ -301,7 +289,6 @@ static void deleteElemListReverse(List **list, const char* num)
 }
 
 
-
 /** @brief Usuwa strukture.
  * Usuwa strukture wskazywana przez @p phrev. Nic nie robi, jesli wskaznik ten ma
  * wartosc NULL. (Funkcja pomocnicza do usuwania drzewa odwroconego).
@@ -310,15 +297,43 @@ static void deleteElemListReverse(List **list, const char* num)
 void phrevDelete(PhoneReverse *phrev) {
     if (phrev != NULL) {
         for (int i = 0; i < SIZE; i++) {
-            if (phrev->children[i]) phrevDelete(phrev->children[i]);
+            if (phrev->children[i] != NULL) {
+                phrevDelete(phrev->children[i]);
+            }
         }
         // Usuwanie przekierowania (listy)
         listDelete(phrev->forward);
         free(phrev);
         phrev = NULL;
     }
+//    PhoneReverse *curr = phrev;
+//    PhoneReverse *prev = NULL;
+//    PhoneReverse *rootParent = phrev->parent;
+//    int i;
+//    while (curr != rootParent) {
+//        for (i = 0; i < SIZE; i++) {
+//            if (curr->children[i]) {
+//                curr = curr->children[i];
+//                break;
+//            }
+//            if (i == SIZE - 1) {
+//                prev = curr->parent;
+//                if (prev != NULL) {
+//                    for (int j = 0; j < SIZE; j++) {
+//                        if (prev->children[j] == curr) {
+//                            prev->children[j] = NULL;
+//                            break;
+//                        }
+//                    }
+//                }
+//                listDelete(curr->forward);
+//                free(curr);
+//                curr = NULL;
+//                curr = prev;
+//            }
+//        }
+//    }
 }
-
 
 
 /**
@@ -327,9 +342,38 @@ void phrevDelete(PhoneReverse *phrev) {
  * @param pf - wskaznik na usuwana strukture.
  */
 static void phfwdDeleteRek(PhoneForward *pf) {
+//    PhoneForward *curr = pf;
+//    PhoneForward *prev = NULL;
+//    PhoneForward *rootParent = pf->parent;
+//    int i;
+//    while (curr != rootParent) {
+//        for (i = 0; i < SIZE; i++) {
+//            if (curr->children[i]) {
+//                curr = curr->children[i];
+//                break;
+//            }
+//            if (i == SIZE - 1) {
+//                prev = curr->parent;
+//                if (prev != NULL) {
+//                    for (int j = 0; j < SIZE; j++) {
+//                        if (prev -> children[j] == curr) {
+//                            prev->children[j] = NULL;
+//                            break;
+//                        }
+//                    }
+//                }
+//                free(curr->forward);
+//                curr->forward = NULL;
+//                free(curr);
+//                curr = prev;
+//            }
+//        }
+//    }
     if (pf != NULL) {
         for (int i = 0; i < SIZE; i++) {
-            if (pf->children[i]) phfwdDeleteRek(pf->children[i]);
+            if (pf->children[i] != NULL) {
+                phfwdDeleteRek(pf->children[i]);
+            }
         }
         if (pf->forward != NULL) {
             free(pf->forward);
@@ -339,7 +383,6 @@ static void phfwdDeleteRek(PhoneForward *pf) {
         pf = NULL;
     }
 }
-
 
 
 /** @brief Usuwa strukture PhoneForward.
@@ -353,7 +396,6 @@ void phfwdDelete(PhoneForward *pf) {
         phfwdDeleteRek(pf);
     }
 }
-
 
 
 /**
@@ -379,15 +421,13 @@ static int isNumber(const char *num) {
 }
 
 
-
 /**
  * @brief Tworzy i zwraca nowy wierzcholek.
  *
  * @return PhoneForward* nowy wierzcholek.
  */
-static PhoneForward* newNode()
-{
-    PhoneForward* node = (struct PhoneForward*)malloc(sizeof(PhoneForward));
+static PhoneForward *newNode() {
+    PhoneForward *node = (struct PhoneForward *) malloc(sizeof(PhoneForward));
     if (node == NULL) {
         return node;
     }
@@ -397,7 +437,6 @@ static PhoneForward* newNode()
     }
     return node;
 }
-
 
 
 /**
@@ -405,9 +444,8 @@ static PhoneForward* newNode()
  *
  * @return PhoneForward* nowy wierzcholek.
  */
-static PhoneReverse* newNodeReverse()
-{
-    PhoneReverse* node = (struct PhoneReverse*)malloc(sizeof(PhoneReverse));
+static PhoneReverse *newNodeReverse() {
+    PhoneReverse *node = (struct PhoneReverse *) malloc(sizeof(PhoneReverse));
     if (node == NULL) {
         return node;
     }
@@ -417,7 +455,6 @@ static PhoneReverse* newNodeReverse()
     }
     return node;
 }
-
 
 
 /**
@@ -428,37 +465,30 @@ static PhoneReverse* newNodeReverse()
  * @param list - wskaznik na liste z ktorych sa przekierowania
  * @param num  - wskaznik na napis do ktorego jest przekierowanie
  */
-static List* insertToList(List *list, const char* num) {
+static List *insertToList(List *list, const char *num) {
     List *ptr = malloc(sizeof(List));
     if (ptr == NULL) {
-        if (*num) {
-            free((char*)num);
-        }
         return NULL;
     }
     ptr->reverse = malloc(sizeof(char) * (strlen(num) + 1));
     if (ptr->reverse == NULL) {
         free(ptr);
-        if (*num) {
-            free((char*)num);
-        }
+        ptr = NULL;
         return NULL;
     }
-    memcpy(ptr->reverse, (char*)num, sizeof(char) * (strlen(num) + 1));
+    memcpy(ptr->reverse, (char *) num, sizeof(char) * (strlen(num) + 1));
     ptr->next = NULL;
 
     if (list == NULL) {
         ptr->next = list;
         return ptr;
-    } else if (compare(num, list->reverse) < 0)
-    {
+    } else if (compare(num, list->reverse) < 0) {
         ptr->next = list;
         return ptr;
     } else {
         List *cur = list;
         while (cur->next != NULL && compare(num, cur->next->reverse) >= 0) {
-            if (compare(num, cur->next->reverse) == 0)
-            {
+            if (compare(num, cur->next->reverse) == 0) {
                 free(ptr->reverse);
                 free(ptr);
                 return list;
@@ -472,7 +502,6 @@ static List* insertToList(List *list, const char* num) {
 }
 
 
-
 /**
  * @brief Dodaje przekierowanie(odwrocone).
  *
@@ -481,15 +510,22 @@ static List* insertToList(List *list, const char* num) {
  * @param[in] num1   - wskaznik na napis reprezentujacy prefiks numerow
  *                     przekierowywanych;
  * @param[in] num2   - wskaznik na napis reprezentujacy prefiks numerow
+ *
+ *  @return Wartosc @p true, jesli przekierowanie zostalo dodane.
+ *         Wartosc @p false, jesli wystapil blad, np. podany napis nie
+ *         reprezentuje numeru, oba podane numery sa identyczne lub nie udalo
+ *         sie alokowac pamieci.
  */
-static void phrevAdd(PhoneReverse *pf, char const *num1, char const *num2) {
-    struct PhoneReverse* temp = pf;
+static bool phrevAdd(PhoneReverse *pf, char const *num1, char const *num2) {
+    struct PhoneReverse *temp = pf;
     while (*num2) {
         int code = get_digit(*num2);
         // Tworze nowy wezel, jesli sciezka nie istnieje
         if (temp->children[code] == NULL) {
             temp->children[code] = newNodeReverse();
-            if (temp->children[code] == NULL) return;
+            if (temp->children[code] == NULL) {
+                return false;
+            }
             temp->children[code]->forward = NULL;
             temp->children[code]->parent = temp;
         }
@@ -499,9 +535,11 @@ static void phrevAdd(PhoneReverse *pf, char const *num1, char const *num2) {
         num2++;
     }
     pf = temp;
-    pf->forward = insertToList(pf->forward, num1);
-}
 
+    pf->forward = insertToList(pf->forward, num1);
+
+    return true;
+}
 
 
 /**
@@ -512,7 +550,7 @@ static void phrevAdd(PhoneReverse *pf, char const *num1, char const *num2) {
  * @param num- wskaznik na numer przekierowania "dokad".
  * @param num2- wskaznik na numer przekierowania "skad".
  */
-static void phrevRemoveConcrete(PhoneReverse *pf, const char* num, const char* num2) {
+static void phrevRemoveConcrete(PhoneReverse *pf, const char *num, const char *num2) {
     if (pf != NULL) {
         PhoneReverse *curr = pf;
         size_t numberLength = strlen(num);
@@ -531,15 +569,14 @@ static void phrevRemoveConcrete(PhoneReverse *pf, const char* num, const char* n
 }
 
 
-
 /**
  * @brief Usuwa przekierowania (za prefiksem) z drzewa odwroconego
- * Usuwa z drzewa wszystkie przekierowania, zaczynajÄ…ce siÄ™ podanym prefiksem
+ * Usuwa z drzewa wszystkie przekierowania, zaczynajace sie podanym prefiksem
  * @param pf - wskaznik na drzewo odwrocone.
  * @param num- wskaznik na numer przekierowania "dokad"
  * @param num2- wskaznik na numer przekierowania "skad" (przefiks)
  */
-static void phrevRemove(PhoneReverse *pf, const char* num, const char* num2) {
+static void phrevRemove(PhoneReverse *pf, const char *num, const char *num2) {
     if (pf != NULL) {
         PhoneReverse *curr = pf;
         size_t numberLength = strlen(num);
@@ -557,13 +594,12 @@ static void phrevRemove(PhoneReverse *pf, const char* num, const char* num2) {
 }
 
 
-
 /**
  * @brief Rekursywne usuwanie przekierowanie z drzewa zwyklego
  * Usuwam rekursywnie przekierowanie z drzewa zwyklego,
  * wywoluje w tej funkcji usuwanie przekierowania z drzewa odwroconego.
  */
-static void phfwdRemoveRek(PhoneForward *pf, PhoneForward *const_pf, char const* num, List** listOfRemoves) {
+static void phfwdRemoveRek(PhoneForward *pf, PhoneForward *const_pf, char const *num, List **listOfRemoves) {
     if (pf != NULL) {
         for (int i = 0; i < SIZE; i++) {
             if (pf->children[i]) {
@@ -579,7 +615,6 @@ static void phfwdRemoveRek(PhoneForward *pf, PhoneForward *const_pf, char const*
 }
 
 
-
 /** @brief Usuwa przekierowania.
  * Usuwa wszystkie przekierowania, w ktorych parametr @p num jest prefiksem
  * parametru @p num1 uzytego przy dodawaniu. Jesli nie ma takich przekierowan
@@ -588,12 +623,11 @@ static void phfwdRemoveRek(PhoneForward *pf, PhoneForward *const_pf, char const*
  *                     numerow;
  * @param[in] num    - wskaznik na napis reprezentujacy prefiks numerow.
  */
-void phfwdRemove(PhoneForward *pf, char const *num)
-{
+void phfwdRemove(PhoneForward *pf, char const *num) {
     if ((pf != NULL) && (num != NULL) && isNumber(num)) {
-        PhoneForward* curr = pf;
-        char* tempNum = (char*)num;
-        size_t  numberLength = strlen(tempNum);
+        PhoneForward *curr = pf;
+        char *tempNum = (char *) num;
+        size_t numberLength = strlen(tempNum);
         for (size_t i = 0; i < numberLength; i++) {
             if (!curr->children[get_digit(*tempNum)]) {
                 return;
@@ -602,7 +636,7 @@ void phfwdRemove(PhoneForward *pf, char const *num)
             tempNum++;
         }
 
-        List* listOfRemoves = NULL;
+        List *listOfRemoves = NULL;
 
         for (int i = 0; i < SIZE; i++) {
             if (curr->children[i] != NULL && curr->children[i]->forward != NULL) {
@@ -618,6 +652,21 @@ void phfwdRemove(PhoneForward *pf, char const *num)
 }
 
 
+/** @brief Usuwa strukture.
+ * Usuwa strukture wskazywana przez @p pnum. Nic nie robi, jesli wskaznik ten ma
+ * wartosc NULL.
+ * @param[in] pnum - wskaznik na usuwana strukture.
+ */
+void phnumDelete(PhoneNumbers *pnum) {
+    if (pnum != NULL) {
+        // Usuwanie przekierowania (listy)
+        listDelete(pnum->allNumbers);
+        // Usuwam podstrukture i strukture.
+        free(pnum);
+        pnum = NULL;
+    }
+}
+
 
 /** @brief Wyznacza przekierowanie numeru.
  * Wyznacza przekierowanie podanego numeru. Szuka najdluzszego pasujacego
@@ -631,8 +680,7 @@ void phfwdRemove(PhoneForward *pf, char const *num)
  * @return Wskaznik na strukture przechowujaca ciag numerow lub NULL, gdy nie
  *         udalo sie alokowac pamieci.*/
 PhoneNumbers *phfwdGet(PhoneForward const *pf, char const *num) {
-
-    PhoneNumbers *pnum = (PhoneNumbers*)malloc(sizeof(PhoneNumbers));
+    PhoneNumbers *pnum = (PhoneNumbers *) malloc(sizeof(PhoneNumbers));
     if (pnum == NULL) return NULL;
     pnum->allNumbers = NULL;
 
@@ -640,24 +688,27 @@ PhoneNumbers *phfwdGet(PhoneForward const *pf, char const *num) {
         free(pnum);
         return NULL;
     }
-
     if (isNumber(num) == 0) {   // Podany napis nie reprezentuje numeru.
         return pnum;
     }
+
     // Postepuje analogicznie jak w  phfwdReverse (tam jest krotko opisana metoda szukania przekierowania).
-    PhoneForward const* curr = pf;
+    PhoneForward const *curr = pf;
     char *lastForward = NULL; // Ostatnie znalezione przekierowanie.
     char *maxForward = NULL; // Najdluzsze dotychczasowe przekierowanie/
-    char* secondPart = NULL;
+    char *secondPart = NULL;
     size_t length;
-    const char* lastSign = "\0";
-    char* numCopy = (char*)malloc(sizeof(char) * (strlen(num) + 1));
-    if (numCopy == NULL) return NULL;
-    memcpy(numCopy, num, sizeof(char) * (strlen(num)));
-    memcpy(numCopy + strlen(num), lastSign, sizeof(char));
-    maxForward = (char*)malloc(sizeof(char));
-    memcpy(maxForward, "\0", sizeof(char));
-    if (maxForward == NULL) return NULL;
+    const char *lastSign = "\0";
+    char *numCopy = (char *) malloc(sizeof(char) * (strlen(num) + 1));
+    if (numCopy != NULL) {
+        memcpy(numCopy, num, sizeof(char) * (strlen(num)));
+        memcpy(numCopy + strlen(num), lastSign, sizeof(char));
+    }
+    maxForward = (char *) malloc(sizeof(char));
+    if (maxForward) {
+        memcpy(maxForward, "\0", sizeof(char));
+    }
+
     while (*num != '\0') {
 
         // Ide do nastepnogo wierzcholka
@@ -667,66 +718,53 @@ PhoneNumbers *phfwdGet(PhoneForward const *pf, char const *num) {
         }
         // Przesuwam sie do innego znaku
         num++;
-        length = strlen(num)  + 1;
+        length = strlen(num) + 1;
         secondPart = realloc(secondPart, (sizeof(char) * length));
-        memcpy(secondPart , (char*)num, sizeof(char) * (length - 1));
-        memcpy(secondPart + length - 1, lastSign, sizeof(char));
+
+        if (secondPart) {
+            memcpy(secondPart, (char *) num, sizeof(char) * (length - 1));
+            memcpy(secondPart + length - 1, lastSign, sizeof(char));
+        }
 
         if (curr->forward) {
             if (!secondPart) {
-                length =  strlen(curr->forward) + 1;
+                length = strlen(curr->forward) + 1;
             } else {
                 length = strlen(secondPart) + strlen(curr->forward) + 1;
             }
             free(lastForward);
-            lastForward = (char*)malloc(sizeof(char) * length);
-            memcpy(lastForward, curr->forward, strlen(curr->forward) * sizeof(char));
-            if (secondPart) {
+            lastForward = (char *) malloc(sizeof(char) * length);
+
+            if (lastForward) {
+                memcpy(lastForward, curr->forward, strlen(curr->forward) * sizeof(char));
+            }
+            if (secondPart && lastForward) {
                 memcpy(lastForward + strlen(curr->forward), secondPart, strlen(secondPart) * sizeof(char));
             }
-            memcpy(lastForward + length - 1 , lastSign, sizeof(char));
+            if (lastForward) memcpy(lastForward + length - 1, lastSign, sizeof(char));
         }
-        if (lastForward != NULL) {
+        if (lastForward != NULL && maxForward != NULL) {
             if (strlen(lastForward) >= strlen(maxForward)) {
                 length = strlen(lastForward) + 1;
                 free(maxForward);
                 maxForward = malloc(sizeof(char) * length);
-                memcpy(maxForward, lastForward, length);
+                if (maxForward) memcpy(maxForward, lastForward, length);
             }
         }
     }
     // Wstawiam do listy wynikowej
     if (lastForward != NULL) {
         pnum->allNumbers = insertToList(pnum->allNumbers, lastForward);
-    } else {
+    } else if (numCopy != NULL) {
         pnum->allNumbers = insertToList(pnum->allNumbers, numCopy);
     }
-    if (secondPart)  free(secondPart);
+    if (secondPart) free(secondPart);
     if (lastForward) free(lastForward);
-    if (maxForward)  free(maxForward);
-    free(numCopy);
+    if (maxForward) free(maxForward);
+    if (numCopy) free(numCopy);
 
     return pnum;
 }
-
-
-
-/** @brief Usuwa strukture.
- * Usuwa strukture wskazywana przez @p pnum. Nic nie robi, jesli wskaznik ten ma
- * wartosc NULL.
- * @param[in] pnum - wskaznik na usuwana strukture.
- */
-void phnumDelete(PhoneNumbers *pnum)
-{
-    if (pnum != NULL) {
-        // Usuwanie przekierowania (listy)
-        listDelete(pnum->allNumbers);
-        // Usuwam podstrukture i strukture.
-        free(pnum);
-        pnum = NULL;
-    }
-}
-
 
 
 /** @brief Udostepnia numer.
@@ -738,16 +776,14 @@ void phnumDelete(PhoneNumbers *pnum)
  * @return Wskaznik na napis reprezentujacy numer telefonu. Wartosc NULL, jesli
  *         wskaznik @p pnum ma wartosc NULL lub indeks ma za duza wartosc.
  */
-char const *phnumGet(PhoneNumbers const *pnum, size_t idx)
-{
+char const *phnumGet(PhoneNumbers const *pnum, size_t idx) {
     if ((pnum != NULL)) {
         char const *p = NULL;
         if (pnum->allNumbers != NULL) {
             List *current = pnum->allNumbers;
             int i = 0;
-            while (current != NULL && i <= (int)idx)
-            {
-                if (i == (int)idx) {
+            while (current != NULL && i <= (int) idx) {
+                if (i == (int) idx) {
                     p = current->reverse;
                     break;
                 }
@@ -756,12 +792,10 @@ char const *phnumGet(PhoneNumbers const *pnum, size_t idx)
             }
         }
         return p;
-    }
-    else {
+    } else {
         return NULL;
     }
 }
-
 
 
 /** @brief Dodaje przekierowanie.
@@ -781,8 +815,7 @@ char const *phnumGet(PhoneNumbers const *pnum, size_t idx)
  *         reprezentuje numeru, oba podane numery sa identyczne lub nie udalo
  *         sie alokowac pamieci.
  */
-bool phfwdAdd(PhoneForward *pf, char const *num1, char const *num2)
-{
+bool phfwdAdd(PhoneForward *pf, char const *num1, char const *num2) {
     if ((pf == NULL) || (num1 == NULL) || (num2 == NULL)) {
         return false;
     }
@@ -792,15 +825,22 @@ bool phfwdAdd(PhoneForward *pf, char const *num1, char const *num2)
     if (strcmp(num1, num2) == 0) {   // Podane numery sa identyczne.
         return false;
     }
-    struct PhoneForward* temp = pf;
-    char const *copyNum1 = (char const*)malloc(sizeof(char) * (strlen(num1) + 100000000));
-    memcpy((char*)copyNum1, num1, sizeof(char) * (strlen(num1) + 1));
+    struct PhoneForward *temp = pf;
+    size_t num1Length = strlen(num1);
+
+    char const *copyNum1 = (char const *) malloc(sizeof(char) * num1Length + 1);
+    if (copyNum1 == NULL) {
+        return false;
+    }
+    memcpy((char *) copyNum1, num1, sizeof(char) * (num1Length + 1));
     while (*num1) {
         int code = get_digit(*num1);
         // Tworze nowy wezel, jesli sciezka nie istnieje.
         if (temp->children[code] == NULL) {
             temp->children[code] = newNode();
             if (temp->children[code] == NULL) {
+                free((char *) copyNum1);
+                copyNum1 = NULL;
                 return false;
             }
             temp->children[code]->forward = NULL;
@@ -818,17 +858,23 @@ bool phfwdAdd(PhoneForward *pf, char const *num1, char const *num2)
         free(temp->forward);
         temp->forward = NULL;
     }
-    temp->forward = (char*)malloc(sizeof(char)*(strlen(num2)+1));
-    if (temp->forward == NULL){
+    temp->forward = (char *) malloc(sizeof(char) * (strlen(num2) + 1));
+    if (temp->forward == NULL) {
+        free((char *) copyNum1);
         copyNum1 = NULL;
         return false;
     }
     strcpy(temp->forward, num2);
-    phrevAdd(pf->pfRev, copyNum1, num2);   // Dodaje przekierowania do drzewa przekierowan reverse ("odwroconego").
-    free((char*)copyNum1);
+    bool ok = phrevAdd(pf->pfRev, copyNum1,
+                       num2);   // Dodaje przekierowania do drzewa przekierowan reverse ("odwroconego").
+
+    free((char *) copyNum1);
+    copyNum1 = NULL;
+    if (!ok) {
+        return false;
+    }
     return true;
 }
-
 
 
 /** @brief Wyznacza przekierowania na dany numer.
@@ -845,8 +891,8 @@ bool phfwdAdd(PhoneForward *pf, char const *num1, char const *num2)
  * @return Wskaznik na strukture przechowujaca ciag numerow lub NULL, gdy nie
  *         udalo sie alokowac pamieci.
  */
-PhoneNumbers* phfwdReverse(PhoneForward const *pf, char const *num) {
-    PhoneNumbers *pnum = (PhoneNumbers*)malloc(sizeof(PhoneNumbers));
+PhoneNumbers *phfwdReverse(PhoneForward const *pf, char const *num) {
+    PhoneNumbers *pnum = (PhoneNumbers *) malloc(sizeof(PhoneNumbers));
 
     if (pnum == NULL) return NULL;
     pnum->allNumbers = NULL;
@@ -863,11 +909,11 @@ PhoneNumbers* phfwdReverse(PhoneForward const *pf, char const *num) {
     // pierwsza - zamieniona na (jesli znaleziono) przekierowanie
     // odpowiednia poczatkowa czesc "num".
     pnum->allNumbers = insertToList(pnum->allNumbers, num);   // Dodaje od razu num do ciagu wynikowego.
-    PhoneReverse * curr = pf->pfRev;
+    PhoneReverse *curr = pf->pfRev;
     char *lastForward = NULL; // Ostatnie znalezione przekierowanie.
-    char* secondPart = NULL;
+    char *secondPart = NULL;
     size_t length;
-    const char* lastSign = "\0";
+    const char *lastSign = "\0";
     while (*num != '\0') {
         // Ide do nastepnogo wierzcholka
         if (*num) {
@@ -878,48 +924,47 @@ PhoneNumbers* phfwdReverse(PhoneForward const *pf, char const *num) {
         if (curr == NULL) break;
         // Przesuwam sie do innego znaku
         num++;
-        length = strlen(num)  + 1;
+        length = strlen(num) + 1;
         secondPart = realloc(secondPart, (sizeof(char) * length));
-        memcpy(secondPart, (char*)num, sizeof(char) * (length - 1));
+        memcpy(secondPart, (char *) num, sizeof(char) * (length - 1));
         memcpy(secondPart + length - 1, lastSign, sizeof(char));
-        List* currList = curr->forward;
+        List *currList = curr->forward;
         while (currList) {
             if (!secondPart) {
-                length =  strlen(currList->reverse) + 1;
+                length = strlen(currList->reverse) + 1;
             } else {
                 length = strlen(secondPart) + strlen(currList->reverse) + 1;
             }
             free(lastForward);
-            lastForward = (char*)malloc(sizeof(char) * length);
+            lastForward = (char *) malloc(sizeof(char) * length);
             memcpy(lastForward, currList->reverse, strlen(currList->reverse) * sizeof(char));
             if (secondPart) {
                 memcpy(lastForward + strlen(currList->reverse), secondPart, strlen(secondPart) * sizeof(char));
             }
-            memcpy(lastForward + length - 1 , lastSign, sizeof(char));
+            memcpy(lastForward + length - 1, lastSign, sizeof(char));
             currList = currList->next;
             if (lastForward != NULL) {
                 pnum->allNumbers = insertToList(pnum->allNumbers, lastForward);
             }
         }
     }
-    if (secondPart)  free(secondPart);
+    if (secondPart) free(secondPart);
     if (lastForward) free(lastForward);
 
     return pnum;
 }
 
 
-
 /**
- * @brief Wyznacza numery przechodzÄ…ce na podany argument
+ * @brief Wyznacza numery przechodzace na podany argument
  *
- * @param pf - wskaznik na baze przekierowaÅ„
- * @param num - wskaznik na numer na ktÃ³ry szukamy przekierowanie
- * @return PhoneNumbers* - zwraca posortowanÄ… leksykograficznie listÄ™ wszystkich takich numerÃ³w telefonÃ³w
- * lub NULL, gdy nie udaÅ‚o siÄ™ alokowaÄ‡ pamiÄ™ci.
+ * @param pf - wskaznik na baze przekierowan
+ * @param num - wskaznik na numer na ktory szukamy przekierowanie
+ * @return PhoneNumbers* - zwraca posortowana leksykograficznie liste wszystkich takich numerow telefonow
+ * lub NULL, gdy nie udalo sie alokowac pamieci.
  */
-PhoneNumbers * phfwdGetReverse(PhoneForward const *pf, char const *num) {
-    PhoneNumbers *pnum = (PhoneNumbers*)malloc(sizeof(PhoneNumbers));
+PhoneNumbers *phfwdGetReverse(PhoneForward const *pf, char const *num) {
+    PhoneNumbers *pnum = (PhoneNumbers *) malloc(sizeof(PhoneNumbers));
     if (pnum == NULL) return NULL;
     pnum->allNumbers = NULL;
 
@@ -931,15 +976,19 @@ PhoneNumbers * phfwdGetReverse(PhoneForward const *pf, char const *num) {
         return pnum;
     }
 
-    PhoneNumbers* pnum1;
+    PhoneNumbers *pnum1;
     pnum1 = phfwdReverse(pf, num);
-    List* temp  = pnum1->allNumbers;
+    if (pnum1 == NULL) {
+        phnumDelete(pnum);
+        return NULL;
+    }
+    List *temp = pnum1->allNumbers;
 
     while (temp != NULL) {
         PhoneNumbers *pnum2;
         pnum2 = phfwdGet(pf, temp->reverse);
-        List* curr = temp->next;
-        if (strcmp(pnum2->allNumbers->reverse, num) != 0) {
+        List *curr = temp->next;
+        if (num && pnum2 && pnum2->allNumbers && strcmp(pnum2->allNumbers->reverse, num) != 0) {
             if (pnum1->allNumbers) {
                 deleteReverse(&(pnum1->allNumbers), temp->reverse);
             }
