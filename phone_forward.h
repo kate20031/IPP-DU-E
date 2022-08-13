@@ -102,13 +102,24 @@ void phnumDelete(PhoneNumbers *pnum);
  */
 char const * phnumGet(PhoneNumbers const *pnum, size_t idx);
 
-/**
- * @brief Wyznacza numery przechodzące na podany argument
- * 
- * @param pf - wskaznik na baze przekierowań
- * @param num - wskaznik na numer na który szukamy przekierowanie
- * @return PhoneNumbers* - zwraca posortowaną leksykograficznie listę wszystkich takich numerów telefonów
- * lub NULL, gdy nie udało się alokować pamięci.
+/** @brief Wyznacza przekierowania na dany numer.
+ * Wyznacza nastepujacy ciag numerow: jesli istnieje numer @p x, taki ze wynik
+ * wywolania @p phfwdGet z numerem @p x zawiera numer @p num, to numer @p x
+ * nalezy do wyniku wywolania @ref phfwdReverse z numerem @p num. Dodatkowo ciag
+ * wynikowy zawsze zawiera tez numer @p num. Wynikowe numery sa posortowane
+ * leksykograficznie i nie moga sie powtarzac. Jesli podany napis nie
+ * reprezentuje numeru, wynikiem jest pusty ciag. Alokuje strukture
+ * @p PhoneNumbers, ktora musi byc zwolniona za pomoca funkcji @ref phnumDelete.
+ *
+ * Wynikowe przekierowanie forwarding sklada sie z 2 czesci :
+   druga "secondPart" - odpowiednia poczatkowa czesc "num",
+   pierwsza - zamieniona na (jesli znaleziono) przekierowanie
+   odpowiednia poczatkowa czesc "num".
+ * @param[in] pf  - wskaznik na strukture przechowujaca przekierowania numerow;
+ * @param[in] num -
+         pnum->allNumbers[idx] wskaznik na napis reprezentujacy numer.
+ * @return Wskaznik na strukture przechowujaca ciag numerow lub NULL, gdy nie
+ *         udalo sie alokowac pamieci.
  */
 PhoneNumbers * phfwdGetReverse(PhoneForward const *pf, char const *num);
 

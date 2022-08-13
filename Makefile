@@ -60,10 +60,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/acer/klon4
+CMAKE_SOURCE_DIR = /home/acer/Pulpit/IPP/duże
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/acer/klon4/src
+CMAKE_BINARY_DIR = /home/acer/Pulpit/IPP/duże/src
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -90,9 +90,9 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/acer/klon4/src/CMakeFiles /home/acer/klon4/src//CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/acer/Pulpit/IPP/duże/src/CMakeFiles /home/acer/Pulpit/IPP/duże/src//CMakeFiles/progress.marks
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/acer/klon4/src/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/acer/Pulpit/IPP/duże/src/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
