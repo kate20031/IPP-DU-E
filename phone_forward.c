@@ -84,11 +84,6 @@ struct PhoneNumbers {
 typedef struct PhoneNumbers PhoneNumbers;
 
 
-/** @brief Tworzy nowa strukture (Reverse).
-* Tworzy nowa strukture  niezawierajaca zadnych przekierowan.
-* @return Wskaznik na utworzona strukture lub NULL, gdy nie udalo sie
-*         alokowac pamieci.
-*/
 PhoneReverse *phrevNew(void) {
     PhoneReverse *phrev = (PhoneReverse *) malloc(sizeof(PhoneReverse));
     if (phrev != NULL) {
@@ -102,11 +97,6 @@ PhoneReverse *phrevNew(void) {
 }
 
 
-/** @brief Tworzy nowa strukture.
-* Tworzy nowa strukture niezawierajaca zadnych przekierowan.
-* @return Wskaznik na utworzona strukture lub NULL, gdy nie udalo sie
-*         alokowac pamieci.
-*/
 PhoneForward *phfwdNew(void) {
     PhoneForward *pf = (PhoneForward *) malloc(sizeof(PhoneForward));
 
@@ -120,7 +110,7 @@ PhoneForward *phfwdNew(void) {
         if (pf->pfRev == NULL) {
             free(pf);
             pf = NULL;
-            return NULL;
+        //    return NULL;
         }
     }
     return pf;
@@ -168,8 +158,8 @@ static int get_digit(char c) {
 /**
  * @brief Porownuje napisy leksykograficznie
  * Zmodyfikowana funkcja strcmp
- * @param p1 - wskaznik na pierwszy napis
- * @param p2 - wskaznik na drugi napis
+ * @param firstStr - wskaznik na pierwszy napis
+ * @param secondStr - wskaznik na drugi napis
  * @return int - liczba dodatnia/ujemna/zero w zaleznosci od wyniku porownania
  */
 static int compare(const char *firstStr, const char *secondStr) {
@@ -330,11 +320,6 @@ static void deleteRegularTree(PhoneForward *pf) {
 }
 
 
-/** @brief Usuwa strukture PhoneForward.
- * Usuwa strukture wskazywana przez @p pf. Nic nie robi, jesli wskaznik ten ma
- * wartosc NULL.
- * @param[in] pf - wskaznik na usuwana strukture.
- */
 void phfwdDelete(PhoneForward *pf) {
     if (pf != NULL) {
         deleteReverseTree(pf->pfRev);
@@ -561,14 +546,6 @@ static void phfwdRemoveRek(PhoneForward *pf, PhoneReverse *pfRev, char const *nu
 }
 
 
-/** @brief Usuwa przekierowania.
- * Usuwa wszystkie przekierowania, w ktorych parametr @p num jest prefiksem
- * parametru @p num1 uzytego przy dodawaniu. Jesli nie ma takich przekierowan
- * lub napis nie reprezentuje numeru, nic nie robi.
- * @param[in,out] pf - wskaznik na strukture przechowujaca przekierowania
- *                     numerow;
- * @param[in] num    - wskaznik na napis reprezentujacy prefiks numerow.
- */
 void phfwdRemove(PhoneForward *pf, char const *num) {
     if ((pf != NULL) && (num != NULL) && isStringAPhoneNumber(num)) {
         PhoneForward *curr = pf;
@@ -596,11 +573,6 @@ void phfwdRemove(PhoneForward *pf, char const *num) {
 }
 
 
-/** @brief Usuwa strukture.
- * Usuwa strukture wskazywana przez @p pnum. Nic nie robi, jesli wskaznik ten ma
- * wartosc NULL.
- * @param[in] pnum - wskaznik na usuwana strukture.
- */
 void phnumDelete(PhoneNumbers *pnum) {
     if (pnum != NULL) {
         // Usuwanie przekierowania (listy)
@@ -639,17 +611,6 @@ static void createAForward(char *const *firstPart, char **secondPart, char **las
 }
 
 
-/** @brief Wyznacza przekierowanie numeru.
- * Wyznacza przekierowanie podanego numeru. Szuka najdluzszego pasujacego
- * prefiksu. Wynikiem jest ciag zawierajacy co najwyzej jeden numer. Jesli dany
- * numerphnumGet(pnum, 0) nie zostal przekierowany, to wynikiem jest ciag zawierajacy ten numer.
- * Jesli podany napis nie reprezentuje numeru, wynikiem jest pusty ciag.
- * Alokuje strukture @p PhoneNumbers, ktora musi byc zwolniona za pomoca
- * funkcji @ref phnumDelete.
- * @param[in] pf  - wskaznik na strukture przechowujaca przekierowania numerow;
- * @param[in] num - wskaznik na napis reprezentujacy numer.
- * @return Wskaznik na strukture przechowujaca ciag numerow lub NULL, gdy nie
- *         udalo sie alokowac pamieci.*/
 PhoneNumbers *phfwdGet(PhoneForward const *pf, char const *num) {
     PhoneNumbers *pnum = (PhoneNumbers *) malloc(sizeof(PhoneNumbers));
     if (pnum == NULL) return NULL;
@@ -670,11 +631,8 @@ PhoneNumbers *phfwdGet(PhoneForward const *pf, char const *num) {
     char *secondPart = NULL;
     size_t length;
     const char *lastSign = "\0";
-    char *numCopy = (char *) malloc(sizeof(char) * (strlen(num) + 1));
-    if (numCopy != NULL) {
-        memcpy(numCopy, num, sizeof(char) * (strlen(num)));
-        memcpy(numCopy + strlen(num), lastSign, sizeof(char));
-    }
+    char const *numCopy = num;
+
     maxForward = (char *) malloc(sizeof(char));
     if (maxForward) {
         memcpy(maxForward, "\0", sizeof(char));
@@ -709,13 +667,12 @@ PhoneNumbers *phfwdGet(PhoneForward const *pf, char const *num) {
     // Wstawiam do listy wynikowej
     if (lastForward != NULL) {
         pnum->allNumbers = insertToList(pnum->allNumbers, lastForward);
-    } else if (numCopy != NULL) {
+    } else {
         pnum->allNumbers = insertToList(pnum->allNumbers, numCopy);
     }
     if (secondPart) free(secondPart);
     if (lastForward) free(lastForward);
     if (maxForward) free(maxForward);
-    if (numCopy) free(numCopy);
 
     return pnum;
 }
@@ -777,42 +734,18 @@ static bool isPhfwdAddCorrectInput(PhoneForward *pf, char const *num1, char cons
 }
 
 
-/** @brief Dodaje przekierowanie.
- * Dodaje przekierowanie wszystkich numerow majacych prefiks @p num1, na numery,
- * w ktorych ten prefiks zamieniono odpowiednio na prefiks @p num2. Kazdy numer
- * jest swoim wlasnym prefiksem. Jesli wczesniej zostalo dodane przekierowanie
- * z takim samym parametrem @p num1, to jest ono zastepowane.
- * Relacja przekierowania numerow nie jest przechodnia.
- * @param[in,out] pf - wskaznik na strukture przechowujaca przekierowania
- *                     numerow;
- * @param[in] num1   - wskaznik na napis reprezentujacy prefiks numerow
- *                     przekierowywanych;
- * @param[in] num2   - wskaznik na napis reprezentujacy prefiks numerow,
- *                     na ktore jest wykonywane przekierowanie.
- * @return Wartosc @p true, jesli przekierowanie zostalo dodane.
- *         Wartosc @p false, jesli wystapil blad, np. podany napis nie
- *         reprezentuje numeru, oba podane numery sa identyczne lub nie udalo
- *         sie alokowac pamieci.
- */
 bool phfwdAdd(PhoneForward *pf, char const *num1, char const *num2) {
     if (!isPhfwdAddCorrectInput(pf, num1, num2)) return false;
 
     struct PhoneForward *temp = pf;
-    size_t num1Length = strlen(num1);
-    char const *copyNum1 = (char const *) malloc(sizeof(char) * num1Length + 1);
+    char const *copyNum1 = num1;
 
-    if (copyNum1 == NULL) {
-        return false;
-    }
-    memcpy((char *) copyNum1, num1, sizeof(char) * (num1Length + 1));
     while (*num1) {
         int code = get_digit(*num1);
         // Tworze nowy wezel, jesli sciezka nie istnieje.
         if (temp->children[code] == NULL) {
             temp->children[code] = newNode();
             if (temp->children[code] == NULL) {
-                free((char *) copyNum1);
-                copyNum1 = NULL;
                 return false;
             }
             temp->children[code]->forwarding = NULL;
@@ -832,16 +765,12 @@ bool phfwdAdd(PhoneForward *pf, char const *num1, char const *num2) {
     }
     temp->forwarding = (char *) malloc(sizeof(char) * (strlen(num2) + 1));
     if (temp->forwarding == NULL) {
-        free((char *) copyNum1);
-        copyNum1 = NULL;
         return false;
     }
     strcpy(temp->forwarding, num2);
-    bool ok = phrevAdd(pf->pfRev, copyNum1,
-                       num2);   // Dodaje przekierowania do drzewa przekierowan forwarding ("odwroconego").
+    // Dodaje przekierowania do drzewa przekierowan forwarding ("odwroconego").
+    bool ok = phrevAdd(pf->pfRev, copyNum1, num2);
 
-    free((char *) copyNum1);
-    copyNum1 = NULL;
     if (!ok) {
         return false;
     }
@@ -849,25 +778,6 @@ bool phfwdAdd(PhoneForward *pf, char const *num1, char const *num2) {
 }
 
 
-/** @brief Wyznacza przekierowania na dany numer.
- * Wyznacza nastepujacy ciag numerow: jesli istnieje numer @p x, taki ze wynik
- * wywolania @p phfwdGet z numerem @p x zawiera numer @p num, to numer @p x
- * nalezy do wyniku wywolania @ref phfwdReverse z numerem @p num. Dodatkowo ciag
- * wynikowy zawsze zawiera tez numer @p num. Wynikowe numery sa posortowane
- * leksykograficznie i nie moga sie powtarzac. Jesli podany napis nie
- * reprezentuje numeru, wynikiem jest pusty ciag. Alokuje strukture
- * @p PhoneNumbers, ktora musi byc zwolniona za pomoca funkcji @ref phnumDelete.
- *
- * Wynikowe przekierowanie forwarding sklada sie z 2 czesci :
-   druga "secondPart" - odpowiednia poczatkowa czesc "num",
-   pierwsza - zamieniona na (jesli znaleziono) przekierowanie
-   odpowiednia poczatkowa czesc "num".
- * @param[in] pf  - wskaznik na strukture przechowujaca przekierowania numerow;
- * @param[in] num -
-         pnum->allNumbers[idx] wskaznik na napis reprezentujacy numer.
- * @return Wskaznik na strukture przechowujaca ciag numerow lub NULL, gdy nie
- *         udalo sie alokowac pamieci.
- */
 PhoneNumbers *phfwdReverse(PhoneForward const *pf, char const *num) {
     PhoneNumbers *pnum = (PhoneNumbers *) malloc(sizeof(PhoneNumbers));
 
@@ -920,14 +830,6 @@ PhoneNumbers *phfwdReverse(PhoneForward const *pf, char const *num) {
 }
 
 
-/**
- * @brief Wyznacza numery przechodzace na podany argument
- *
- * @param pf - wskaznik na baze przekierowan
- * @param num - wskaznik na numer na ktory szukamy przekierowanie
- * @return PhoneNumbers* - zwraca posortowana leksykograficznie liste wszystkich takich numerow telefonow
- * lub NULL, gdy nie udalo sie alokowac pamieci.
- */
 PhoneNumbers *phfwdGetReverse(PhoneForward const *pf, char const *num) {
     PhoneNumbers *pnum = (PhoneNumbers *) malloc(sizeof(PhoneNumbers));
     if (pnum == NULL) return NULL;
