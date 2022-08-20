@@ -641,44 +641,44 @@ static int many_ops(void) {
 #undef div3
 #undef format3
 }
-//
-//// Bardzo długie numery
-//static int very_long(void) {
-//#define LONG_LEN 250000
-//
-//    char *base, b[3];
-//
-//    INIT(pf);
-//    N(base = malloc(sizeof(char) * (LONG_LEN + 3)));
-//
-//    for (int i = 0; i < LONG_LEN; ++i)
-//        base[i] = '0' + i % 10;
-//    base[LONG_LEN + 2] = '\0';
-//    b[2] = '\0';
-//    for (int i = 0; i <= 99; ++i) {
-//        b[0] = '0' + i / 10;
-//        b[1] = '0' + i % 10;
-//        base[LONG_LEN]     = '0' + i % 10;
-//        base[LONG_LEN + 1] = '0' + i / 10;
-//        T(phfwdAdd(pf, base, b));
-//    }
-//    for (int i = 0 ; i <= 99; ++i) {
-//        b[0] = '0' + i / 10;
-//        b[1] = '0' + i % 10;
-//        base[LONG_LEN]     = '0' + i % 10;
-//        base[LONG_LEN + 1] = '0' + i / 10;
-//        CHECK(pf, base, b);
-//        if (i < 2)
-//            RCHCK(pf, b, b, base);
-//        else
-//            RCHCK(pf, b, base, b);
-//    }
-//
-//    free(base);
-//    CLEAN(pf);
-//
-//#undef LONG_LEN
-//}
+
+// Bardzo długie numery
+static int very_long(void) {
+#define LONG_LEN 250000
+
+    char *base, b[3];
+
+    INIT(pf);
+    N(base = malloc(sizeof(char) * (LONG_LEN + 3)));
+
+    for (int i = 0; i < LONG_LEN; ++i)
+        base[i] = '0' + i % 10;
+    base[LONG_LEN + 2] = '\0';
+    b[2] = '\0';
+    for (int i = 0; i <= 99; ++i) {
+        b[0] = '0' + i / 10;
+        b[1] = '0' + i % 10;
+        base[LONG_LEN]     = '0' + i % 10;
+        base[LONG_LEN + 1] = '0' + i / 10;
+        T(phfwdAdd(pf, base, b));
+    }
+    for (int i = 0 ; i <= 99; ++i) {
+        b[0] = '0' + i / 10;
+        b[1] = '0' + i % 10;
+        base[LONG_LEN]     = '0' + i % 10;
+        base[LONG_LEN + 1] = '0' + i / 10;
+        CHECK(pf, base, b);
+        if (i < 2)
+            RCHCK(pf, b, b, base);
+        else
+            RCHCK(pf, b, base, b);
+    }
+
+    free(base);
+    CLEAN(pf);
+
+#undef LONG_LEN
+}
 
 // Duża liczba przekierowań
 static int many_remove(void) {
@@ -1359,7 +1359,7 @@ static const test_list_t test_list[] = {
         TEST(simple_reverse),
         TEST(various_ops),
         TEST(many_ops),
-//        TEST(very_long),
+        TEST(very_long),
         TEST(many_remove),
         TEST(add_remove),
         TEST(twelve_digits),

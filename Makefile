@@ -145,6 +145,54 @@ doc/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/doc.dir/build.make CMakeFiles/doc.dir/build
 .PHONY : doc/fast
 
+list_of_numbers.o: list_of_numbers.c.o
+.PHONY : list_of_numbers.o
+
+# target to build an object file
+list_of_numbers.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/phone_forward.dir/build.make CMakeFiles/phone_forward.dir/list_of_numbers.c.o
+.PHONY : list_of_numbers.c.o
+
+list_of_numbers.i: list_of_numbers.c.i
+.PHONY : list_of_numbers.i
+
+# target to preprocess a source file
+list_of_numbers.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/phone_forward.dir/build.make CMakeFiles/phone_forward.dir/list_of_numbers.c.i
+.PHONY : list_of_numbers.c.i
+
+list_of_numbers.s: list_of_numbers.c.s
+.PHONY : list_of_numbers.s
+
+# target to generate assembly for a file
+list_of_numbers.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/phone_forward.dir/build.make CMakeFiles/phone_forward.dir/list_of_numbers.c.s
+.PHONY : list_of_numbers.c.s
+
+phnum.o: phnum.c.o
+.PHONY : phnum.o
+
+# target to build an object file
+phnum.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/phone_forward.dir/build.make CMakeFiles/phone_forward.dir/phnum.c.o
+.PHONY : phnum.c.o
+
+phnum.i: phnum.c.i
+.PHONY : phnum.i
+
+# target to preprocess a source file
+phnum.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/phone_forward.dir/build.make CMakeFiles/phone_forward.dir/phnum.c.i
+.PHONY : phnum.c.i
+
+phnum.s: phnum.c.s
+.PHONY : phnum.s
+
+# target to generate assembly for a file
+phnum.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/phone_forward.dir/build.make CMakeFiles/phone_forward.dir/phnum.c.s
+.PHONY : phnum.c.s
+
 phone_forward.o: phone_forward.c.o
 .PHONY : phone_forward.o
 
@@ -193,6 +241,30 @@ phone_forward_example.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/phone_forward.dir/build.make CMakeFiles/phone_forward.dir/phone_forward_example.c.s
 .PHONY : phone_forward_example.c.s
 
+phone_reverse.o: phone_reverse.c.o
+.PHONY : phone_reverse.o
+
+# target to build an object file
+phone_reverse.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/phone_forward.dir/build.make CMakeFiles/phone_forward.dir/phone_reverse.c.o
+.PHONY : phone_reverse.c.o
+
+phone_reverse.i: phone_reverse.c.i
+.PHONY : phone_reverse.i
+
+# target to preprocess a source file
+phone_reverse.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/phone_forward.dir/build.make CMakeFiles/phone_forward.dir/phone_reverse.c.i
+.PHONY : phone_reverse.c.i
+
+phone_reverse.s: phone_reverse.c.s
+.PHONY : phone_reverse.s
+
+# target to generate assembly for a file
+phone_reverse.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/phone_forward.dir/build.make CMakeFiles/phone_forward.dir/phone_reverse.c.s
+.PHONY : phone_reverse.c.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -203,12 +275,21 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... doc"
 	@echo "... phone_forward"
+	@echo "... list_of_numbers.o"
+	@echo "... list_of_numbers.i"
+	@echo "... list_of_numbers.s"
+	@echo "... phnum.o"
+	@echo "... phnum.i"
+	@echo "... phnum.s"
 	@echo "... phone_forward.o"
 	@echo "... phone_forward.i"
 	@echo "... phone_forward.s"
 	@echo "... phone_forward_example.o"
 	@echo "... phone_forward_example.i"
 	@echo "... phone_forward_example.s"
+	@echo "... phone_reverse.o"
+	@echo "... phone_reverse.i"
+	@echo "... phone_reverse.s"
 .PHONY : help
 
 

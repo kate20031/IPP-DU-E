@@ -1,5 +1,5 @@
 /** @file
- * Interfejs klasy przechowujacej przekierowania numerow telefonicznych
+ * Interfejs klasy przechowującej przekierowania numerów telefonicznych
  *
  * @author Marcin Peczarski <marpe@mimuw.edu.pl>
  * @copyright Uniwersytet Warszawski
@@ -8,119 +8,134 @@
 
 #ifndef __PHONE_FORWARD_H__
 #define __PHONE_FORWARD_H__
-
 #include <stdbool.h>
 #include <stddef.h>
+#include "phone_reverse.h"
+
+
 
 /**
- * To jest struktura przechowujaca przekierowania numerow telefonow.
+ * @brief Struktura do przechowywania przekierowań.
+ *  Przechowuję przekierowania w drzewie tries.
+ * Drzewo ma 12 dzieci (od 0 do 11). 10 - to '*', 11 - to '*',
+ * a pozostałe cyferki sa sa odpowiednikami cyfr w numerze.
+ * Przekierowanie 'dokąd' przechowuję w forwarding. (Znajduje sie w synie najmniej
+ * znaczącej cyfry przekierowania 'skąd'.
+ * W pfRev przechowuje drzewo przekierowań odwrotnych (Reverse).
  */
-struct PhoneForward;
+struct PhoneForward {
+    struct PhoneForward *children[CHILDREN_NUMB]; ///<"dzieci" wierzchołka drzewa.
+    struct PhoneForward *parent;    ///<rodzic danego wierzchołka.
+    char *forwarding;  ///<przekierowanie.
+    struct PhoneReverse *pfRev; ///<struktura przekierowań odwróconych (Reverse).
+};
 /**
- * To jest typ PhoneForward.
+ * @brief to jest typ PhoneForward
+ *
  */
 typedef struct PhoneForward PhoneForward;
 
-/**
- * To jest struktura przechowujaca ciag numerow telefonow.
- */
-struct PhoneNumbers;
-/**
- * To jest typ PhoneNumbers.
- */
-typedef struct PhoneNumbers PhoneNumbers;
 
-/** @brief Tworzy nowa strukture.
- * Tworzy nowa strukture niezawierajacazadnych przekierowan.
- * @return Wskaznik na utworzona strukture lub NULL, gdy nie udalo sie
- *         alokowac pamieci.
+/** @brief Tworzy nowa strukturę.
+ * Tworzy nowa strukturę niezawierająca żadnych przekierowań.
+ * @return Wskaźnik na utworzona strukturę lub NULL, gdy nie udało sie
+ *         alokować pamięci.
  */
 PhoneForward * phfwdNew(void);
 
-/** @brief Usuwa strukture.
- * Usuwa strukture wskazywana przez @p pf. Nic nie robi, jesli wskaznik ten ma
- * wartosc NULL.
+
+/** @brief Usuwa strukturę.
+ * Usuwa strukturę wskazywana przez @p pf. Nic nie robi, jeśli wskaźnik ten ma
+ * wartość NULL.
  */
 void phfwdDelete(PhoneForward *pf);
 
+
 /** @brief Dodaje przekierowanie.
- * Dodaje przekierowanie wszystkich numerow majacych prefiks @p num1, na numery,
- * w ktorych ten prefiks zamieniono odpowiednio na prefiks @p num2. Kazdy numer
- * jest swoim wlasnym prefiksem. Jesli wczesniej zostalo dodane przekierowanie
- * z takim samym parametrem @p num1, to jest ono zastepowane.
- * Relacja przekierowania numerow nie jest przechodnia.       
- * @return Wartosc @p true, jesli przekierowanie zostalo dodane.
- *         Wartosc @p false, jesli wystapil blad, np. podany napis nie
- *         reprezentuje numeru, oba podane numery sa identyczne lub nie udalo
- *         sie alokowac pamieci.
+ * Dodaje przekierowanie wszystkich numerów mających prefiks @p num1, na numery,
+ * w których ten prefiks zamieniono odpowiednio na prefiks @p num2. Każdy numer
+ * jest swoim własnym prefiksem. Jeśli wcześniej zostało dodane przekierowanie
+ * z takim samym parametrem @p num1, to jest ono zastępowane.
+ * Relacja przekierowania numerów nie jest przechodnia.
+ * @return Wartość @p true, jeśli przekierowanie zostało dodane.
+ *         Wartość @p false, jeśli wystąpił błąd, np. podany napis nie
+ *         reprezentuje numeru, oba podane numery sa identyczne lub nie udało
+ *         sie alokować pamięci.
  */
 bool phfwdAdd(PhoneForward *pf, char const *num1, char const *num2);
 
+
 /** @brief Usuwa przekierowania.
- * Usuwa wszystkie przekierowania, w ktorych parametr @p num jest prefiksem
- * parametru @p num1 uzytego przy dodawaniu. Jesli nie ma takich przekierowan
+ * Usuwa wszystkie przekierowania, w których parametr @p num jest prefiksem
+ * parametru @p num1 użytego przy dodawaniu. Jeśli nie ma takich przekierowań
  * lub napis nie reprezentuje numeru, nic nie robi.
  */
 void phfwdRemove(PhoneForward *pf, char const *num);
 
+
 /** @brief Wyznacza przekierowanie numeru.
- * Wyznacza przekierowanie podanego numeru. Szuka najdluzszego pasujacego
- * prefiksu. Wynikiem jest ciag zawierajacy co najwyzej jeden numer. Jesli dany
- * numer nie zostal przekierowany, to wynikiem jest ciag zawierajacy ten numer.
- * Jesli podany napis nie reprezentuje numeru, wynikiem jest pusty ciag.
- * Alokuje strukture @p PhoneNumbers, ktora musi byc zwolniona za pomoca
+ * Wyznacza przekierowanie podanego numeru. Szuka najdłuższego pasującego
+ * prefiksu. Wynikiem jest ciąg zawierający co najwyżej jeden numer. Jeśli dany
+ * numer nie został przekierowany, to wynikiem jest ciąg zawierający ten numer.
+ * Jeśli podany napis nie reprezentuje numeru, wynikiem jest pusty ciąg.
+ * Alokuje strukturę @p PhoneNumbers, która musi byc zwolniona za pomocą
  * funkcji @ref phnumDelete.
- * @return Wskaznik na strukture przechowujaca ciag numerow lub NULL, gdy nie
- *         udalo sie alokowac pamieci.
+ * @return Wskaźnik na strukturę przechowująca ciąg numerów lub NULL, gdy nie
+ *         udało sie alokować pamięci.
  */
 PhoneNumbers * phfwdGet(PhoneForward const *pf, char const *num);
 
-/** @brief Wyznacza kandydatow na przekierowania na dany numer.
- * Wyznacza nastepujacy ciag numerow: jesli istnieje numer @p x, taki ze wynik
- * wywolania @p phfwdGet z numerem @p x zawiera numer @p num, to numer @p x
- * nalezy do wyniku wywolania @ref phfwdReverse z numerem @p num. Dodatkowo ciag
+
+/** @brief Wyznacza kandydatów na przekierowania na dany numer.
+ * Wyznacza następujący ciąg numerów: jeśli istnieje numer @p x, taki ze wynik
+ * wywołania @p phfwdGet z numerem @p x zawiera numer @p num, to numer @p x
+ * należy do wyniku wywołania @ref phfwdReverse z numerem @p num. Dodatkowo ciąg
  * wynikowy zawsze zawiera tez numer @p num. Wynikowe numery sa posortowane
- * leksykograficznie i nie moga sie powtarzac. Jesli podany napis nie
- * reprezentuje numeru, wynikiem jest pusty ciag. Alokuje strukture
- * @p PhoneNumbers, ktora musi byc zwolniona za pomoca funkcji @ref phnumDelete.
- * @return Wskaznik na strukture przechowujaca ciag numerow lub NULL, gdy nie
- *         udalo sie alokowac pamieci.
+ * leksykograficznie i nie mogą sie powtarzać. Jeśli podany napis nie
+ * reprezentuje numeru, wynikiem jest pusty ciąg. Alokuje strukturę
+ * @p PhoneNumbers, która musi byc zwolniona za pomocą funkcji @ref phnumDelete.
+ * @return Wskaźnik na strukturę przechowująca ciąg numerów lub NULL, gdy nie
+ *         udało sie alokować pamięci.
  */
 PhoneNumbers * phfwdReverse(PhoneForward const *pf, char const *num);
 
-/** @brief Usuwa strukture.
- * Usuwa strukture wskazywana przez @p pnum. Nic nie robi, jezeli wskaznik ten ma
- * wartosc NULL.
- */
-void phnumDelete(PhoneNumbers *pnum);
 
-/** @brief Udostepnia numer.
- * Udostepnia wskaznik na napis reprezentujacy numer. Napisy sa indeksowane
- * kolejno od zera.
- * @return Wskaznik na napis reprezentujacy numer telefonu. Wartosc NULL, jezeli
- *         wskaznik @p pnum ma wartosc NULL lub indeks ma zanadto duza wartorsc.
- */
-char const * phnumGet(PhoneNumbers const *pnum, size_t idx);
-
-/** @brief Wyznacza przekierowania na dany numer.
- * Wyznacza nastepujacy ciag numerow: jesli istnieje numer @p x, taki ze wynik
- * wywolania @p phfwdGet z numerem @p x zawiera numer @p num, to numer @p x
- * nalezy do wyniku wywolania @ref phfwdReverse z numerem @p num. Dodatkowo ciag
- * wynikowy zawsze zawiera tez numer @p num. Wynikowe numery sa posortowane
- * leksykograficznie i nie moga sie powtarzac. Jesli podany napis nie
- * reprezentuje numeru, wynikiem jest pusty ciag. Alokuje strukture
- * @p PhoneNumbers, ktora musi byc zwolniona za pomoca funkcji @ref phnumDelete.
- *
- * Wynikowe przekierowanie forwarding sklada sie z 2 czesci :
-   druga "secondPart" - odpowiednia poczatkowa czesc "num",
-   pierwsza - zamieniona na (jesli znaleziono) przekierowanie
-   odpowiednia poczatkowa czesc "num".
- * @param[in] pf  - wskaznik na strukture przechowujaca przekierowania numerow;
- * @param[in] num -
-         pnum->allNumbers[idx] wskaznik na napis reprezentujacy numer.
- * @return Wskaznik na strukture przechowujaca ciag numerow lub NULL, gdy nie
- *         udalo sie alokowac pamieci.
+/** @brief Wyznacza numery przechodzące na podany argument
+ * @param pf - wskaźnik na bazę przekierowań.
+ * @param num - wskaźnik na numer na który szukamy przekierowanie.
+ * @return PhoneNumbers* - zwraca posortowana leksykograficznie listę wszystkich takich numerów telefonów
+ * lub NULL, gdy nie udało sie alokować pamięci.
  */
 PhoneNumbers * phfwdGetReverse(PhoneForward const *pf, char const *num);
+
+
+/**
+ * @brief Zwraca liczbowa postać znaku.
+ *
+ * @param c - znak.
+ * @return int liczbowa postać znaku.
+ */
+int get_digit(char c);
+
+/**
+ * @brief Sprawdza czy napis jest numerem
+ * Sprawdza czy podany napis składa sie tylko z cyfr.
+ * @param[in] num  -  Sprawdzany napis.
+ * @return int 0, jeżeli napis nie jest numerem (zawiera inny znak niz cyfra
+ *                  lub jest pusty).
+ *         int 1, jeżeli napis jest numerem.
+ */
+bool isStringAPhoneNumber(const char *num);
+
+
+/**
+ * @brief Funkcja tworzy przekierowanie, kopiuję go zawartość do "lastForward"
+ * @param firstPart – pierwsza część tworzonego przekierowania.
+ * @param secondPart – druga część tworzonego przekierowania.
+ * @param lastForward – ostatnie znalezione przekierowanie.
+ */
+void createAForward(char *const *firstPart, char **secondPart, char **lastForward);
+
+
 
 #endif /* __PHONE_FORWARD_H__ */

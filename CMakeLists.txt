@@ -20,13 +20,15 @@ set(CMAKE_C_FLAGS "-std=c17 -Wall -Wextra -Wno-implicit-fallthrough")
 
 # Domyślne opcje dla wariantów Release i Debug są sensowne.
 # Jeśli to konieczne, ustawiamy tu inne.
-set(CMAKE_C_FLAGS_RELEASE "-O2 -DNDEBUG")
+set(CMAKE_C_FLAGS_RELEASE "-DNDEBUG")
 # set(CMAKE_C_FLAGS_DEBUG "-g")
 
 # Wskazujemy pliki źródłowe.
 set(SOURCE_FILES
     src/phone_forward.h
     src/phone_forward.c
+    src/phone_reverse.c
+    src/phone_reverse.h
     src/phone_forward_example.c)
 
 # Wskazujemy plik wykonywalny.
