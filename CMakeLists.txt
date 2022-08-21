@@ -15,21 +15,24 @@ set(CMAKE_VERBOSE_MAKEFILE ON)
 # Ustawiamy wspólne opcje kompilowania dla wszystkich wariantów projektu.
 set(CMAKE_C_FLAGS "-std=c17 -Wall -Wextra -Wno-implicit-fallthrough")
 
-#set(CFALGS_WRAP="-Wl,--wrap=malloc -Wl,--wrap=calloc -Wl,--wrap=realloc
-#-Wl,--wrap=reallocarray -Wl,--wrap=free -Wl,--wrap=strdup -Wl,--wrap=strndup")
-
 # Domyślne opcje dla wariantów Release i Debug są sensowne.
 # Jeśli to konieczne, ustawiamy tu inne.
-set(CMAKE_C_FLAGS_RELEASE "-DNDEBUG")
-# set(CMAKE_C_FLAGS_DEBUG "-g")
+set(CMAKE_C_FLAGS_RELEASE "-O2 -DNDEBUG")
+set(CMAKE_C_FLAGS_DEBUG "-g")
+
+# Dodajemy flagi dodatkowe.
+SET(GCC_COVERAGE_LINK_FLAGS    "-Wl,--wrap=malloc -Wl,--wrap=calloc -Wl,--wrap=realloc -Wl,--wrap=reallocarray -Wl,--wrap=free -Wl,--wrap=strdup -Wl,--wrap=strndup")
 
 # Wskazujemy pliki źródłowe.
 set(SOURCE_FILES
-    src/phone_forward.h
-    src/phone_forward.c
-    src/phone_reverse.c
-    src/phone_reverse.h
-    src/phone_forward_example.c)
+        src/phone_forward.h
+        src/phone_forward.c
+        src/phone_forward_example.c
+        src/phone_reverse.c
+        src/phone_reverse.h
+        "../../../Pobrane/Telegram Desktop/duże/src/list_of_numbers.c"
+        "../../../Pobrane/Telegram Desktop/duże/src/list_of_numbers.h"
+        src/phnum.c src/phnum.h)
 
 # Wskazujemy plik wykonywalny.
 add_executable(phone_forward ${SOURCE_FILES})
@@ -42,8 +45,8 @@ if (DOXYGEN_FOUND)
     # Dodajemy cel doc: użycie make doc spowoduje wywołanie doxygena z odpowiednim plikiem konfiguracyjnym w folderze kompilacji.
     # Na wyjście zostanie wypisany odpowiedni komentarz.
     add_custom_target(doc
-        ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
-        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-        COMMENT "Generating API documentation with Doxygen"
-    )
+            ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
+            WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+            COMMENT "Generating API documentation with Doxygen"
+            )
 endif (DOXYGEN_FOUND)
