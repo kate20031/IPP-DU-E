@@ -1,6 +1,11 @@
 /** @file
- *  * Implementacja interfejsu opisującą strukturę
+ *  Implementacja interfejsu opisującą strukturę
  *  listy numerów i wszystkich operacji na liście.
+ *
+ * @author Kateryna Pavlichenko <marpe@mimuw.edu.pl>
+ * @author Marcin Peczarski <marpe@mimuw.edu.pl>
+ * @copyright Uniwersytet Warszawski
+ * @date 2022
  */
 
 #include "list_of_numbers.h"

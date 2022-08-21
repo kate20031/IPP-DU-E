@@ -1,6 +1,7 @@
 /** @file
  * Implementacja interfejsu opisujące drzewo,
  * które przechowuje prefiksy możliwych przekierowań numerów telefonicznych.
+ *
  * @author Kateryna Pavlichenko <marpe@mimuw.edu.pl>
  * @author Marcin Peczarski <marpe@mimuw.edu.pl>
  * @copyright Uniwersytet Warszawski
@@ -13,7 +14,7 @@
 #include <string.h>
 #include "phone_forward.h"
 #include "phone_reverse.h"
-#include "list_of_numbers.h"
+#include "../../../../Pobrane/Telegram Desktop/duże/src/list_of_numbers.h"
 #include "phnum.h"
 #define CHILDREN_NUMB 12 ///<Rozmiar drzewa
 

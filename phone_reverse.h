@@ -1,6 +1,13 @@
+/** @file
+ * Interfejs klasy przechowującej przekierowania numerów telefonicznych
+ * w drzewie odwroconym.
+ *
+ * @author Marcin Peczarski <marpe@mimuw.edu.pl>
+ * @copyright Uniwersytet Warszawski
+ * @date 2022
+ */
 #ifndef PHONE_REVERSE_H
 #define PHONE_REVERSE_H
-
 #define CHILDREN_NUMB 12 ///<Rozmiar drzewa
 #include <stdbool.h>
 #include "phnum.h"

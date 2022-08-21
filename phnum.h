@@ -1,3 +1,13 @@
+/** @file
+ * Interfejsu opisujuący strukturę, i operacji z nią związane,
+ * która przechowuje otrzymane przekierowania numerów telefonicznych.
+ *
+ * @author Kateryna Pavlichenko <marpe@mimuw.edu.pl>
+ * @author Marcin Peczarski <marpe@mimuw.edu.pl>
+ * @copyright Uniwersytet Warszawski
+ * @date 2022
+ */
+
 #ifndef PHNUM_H
 #define PHNUM_H
 #include <stddef.h>

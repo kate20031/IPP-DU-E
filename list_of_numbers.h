@@ -1,3 +1,13 @@
+/** @file
+ *  Interfejs opisujący strukturę
+ *  listy numerów i wszystkich operacji na liście.
+ *
+ * @author Kateryna Pavlichenko <marpe@mimuw.edu.pl>
+ * @author Marcin Peczarski <marpe@mimuw.edu.pl>
+ * @copyright Uniwersytet Warszawski
+ * @date 2022
+ */
+
 #ifndef LIST_OF_NUMBERS_H
 #define LIST_OF_NUMBERS_H
 #include "phone_reverse.h"

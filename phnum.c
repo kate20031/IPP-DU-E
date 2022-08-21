@@ -1,9 +1,15 @@
 /** @file
- * Implementacja interfejsu przechowującego otrzymane przekierowania numerów telefonicznych
+ * Implementacja interfejsu struktury przechowującej
+ * otrzymane przekierowania numerów telefonicznych.
+ *
+ * @author Kateryna Pavlichenko <marpe@mimuw.edu.pl>
+ * @author Marcin Peczarski <marpe@mimuw.edu.pl>
+ * @copyright Uniwersytet Warszawski
+ * @date 2022
  */
 
 #include "phnum.h"
-#include "list_of_numbers.h"
+#include "../../../../Pobrane/Telegram Desktop/duże/src/list_of_numbers.h"
 #include <stdlib.h>
 
 
